@@ -136,7 +136,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.6.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -148,7 +147,6 @@
         <dependency>
             <groupId>org.jboss.spec.javax.servlet</groupId>
             <artifactId>jboss-servlet-api_3.0_spec</artifactId>
-            <version>1.0.0.Final</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -160,14 +158,13 @@
         <dependency>
             <groupId>org.dcm4che.dcm4chee-conf</groupId>
             <artifactId>dcm4chee-conf-web</artifactId>
-            <classifier>xds${asb}${conf-web-classifier}</classifier>
+            <classifier>${conf-web-classifier}</classifier>
             <type>war</type>
             <version>${dcm4chee-conf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate.javax.persistence</groupId>
             <artifactId>hibernate-jpa-2.0-api</artifactId>
-            <version>1.0.0.Final</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -207,6 +204,7 @@
                         <ejbModule>
                             <groupId>org.dcm4che.dcm4chee-conf</groupId>
                             <artifactId>dcm4chee-conf-cdi</artifactId>
+                            <bundleFileName>dcm4chee-conf-cdi.jar</bundleFileName>
                         </ejbModule>
                         <webModule>
                             <groupId>org.dcm4che</groupId>
@@ -236,12 +234,6 @@
 
     <profiles>
         <profile>
-            <id>security-disabled</id>
-            <properties>
-                <conf-web-classifier>-unsecure</conf-web-classifier>
-            </properties>
-        </profile>
-        <profile>
             <id>conf-db</id>
             <dependencies>
                 <dependency>
@@ -263,6 +255,7 @@
                                 <ejbModule>
                                     <groupId>org.dcm4che.dcm4chee-conf</groupId>
                                     <artifactId>dcm4chee-conf-db</artifactId>
+                                    <bundleFileName>dcm4chee-conf-db.jar</bundleFileName>
                                 </ejbModule>
                             </modules>
                             <version>6</version>
@@ -274,6 +267,9 @@
 
         <profile>
             <id>asb</id>
+            <properties>
+        			<conf-web-classifier>csp-asb</conf-web-classifier>
+    		</properties>
             <dependencies>
                 <dependency>
                     <groupId>org.dcm4che.dcm4chee-conf</groupId>
@@ -295,6 +291,7 @@
                                 <ejbModule>
                                     <groupId>org.dcm4che.dcm4chee-conf</groupId>
                                     <artifactId>dcm4chee-conf-db</artifactId>
+                                    <bundleFileName>dcm4chee-conf-db.jar</bundleFileName>
                                 </ejbModule>
                             </modules>
                             <version>6</version>

@@ -53,15 +53,15 @@ import java.util.Map.Entry;
 
 import javax.activation.DataHandler;
 
-import org.dcm4che3.audit.AuditMessage;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.audit.AuditMessages.EventActionCode;
 import org.dcm4che3.audit.AuditMessages.EventID;
 import org.dcm4che3.audit.AuditMessages.EventOutcomeIndicator;
 import org.dcm4che3.audit.AuditMessages.EventTypeCode;
-import org.dcm4che3.audit.AuditMessages.ParticipantObjectDescription;
+import org.dcm4che3.audit.ParticipantObjectDescription;
 import org.dcm4che3.audit.AuditMessages.ParticipantObjectIDTypeCode;
 import org.dcm4che3.audit.AuditMessages.RoleIDCode;
+import org.dcm4che3.audit.AuditMessage;
 import org.dcm4che3.audit.Instance;
 import org.dcm4che3.audit.ParticipantObjectDetail;
 import org.dcm4che3.audit.ParticipantObjectIdentification;
@@ -266,7 +266,7 @@ public class XDSAudit {
 	                getLocalHostname(), docReq, success);
 	        }
 	    } catch (Exception e ){
-	        log.warn("Audit log of Import ({}) failed!",eventTypeCode.getDisplayName());    	
+	        log.warn("Audit log of Import ({}) failed!",eventTypeCode.getOriginalText());    	
             log.debug("AuditLog Exception:", e);
 	    }
     }
@@ -282,7 +282,7 @@ public class XDSAudit {
                     success ? EventOutcomeIndicator.Success : EventOutcomeIndicator.MinorFailure);
             sendAuditMessage(timeStamp, msg);
         } catch (Exception e) {
-            log.warn("Audit log of Import ("+eventTypeCode.getDisplayName()+") failed!");
+            log.warn("Audit log of Import ("+eventTypeCode.getOriginalText()+") failed!");
             log.debug("AuditLog Exception:", e);
         }
     }
@@ -404,7 +404,7 @@ public class XDSAudit {
                     docReq, docUIDs, timeStamp, success ? EventOutcomeIndicator.Success : EventOutcomeIndicator.MinorFailure);
             sendAuditMessage(timeStamp, msg);
         } catch (Exception e) {
-            log.warn("Audit log of Export ("+eventTypeCode.getDisplayName()+") failed!");
+            log.warn("Audit log of Export ("+eventTypeCode.getOriginalText()+") failed!");
             log.debug("AuditLog Exception:", e);
         }
     }
@@ -518,7 +518,7 @@ public class XDSAudit {
                         success ? EventOutcomeIndicator.Success : EventOutcomeIndicator.MinorFailure,
                         null,
                         EventTypeCode.ITI_9_PIXQuery));
-                msg.setAuditSourceIdentification(logger.createAuditSourceIdentification());
+                msg.getAuditSourceIdentification().add(logger.createAuditSourceIdentification());
                 String hostName = getLocalHostname();
                 msg.getActiveParticipant().add(
                         AuditMessages.createActiveParticipant(sendingFacility+"|"+sendingApp, 
@@ -675,7 +675,7 @@ public class XDSAudit {
     }
 
     private static ParticipantObjectIdentification createStudyPOI(String studyIUID,
-            AuditMessages.ParticipantObjectDescription pod) {
+            ParticipantObjectDescription pod) {
         return AuditMessages.createParticipantObjectIdentification(
                 studyIUID, 
                 AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID, 
@@ -698,7 +698,7 @@ public class XDSAudit {
                 outcomeIndicator,
                 null,
                 eventType));
-        msg.setAuditSourceIdentification(logger.createAuditSourceIdentification());
+        msg.getAuditSourceIdentification().add(logger.createAuditSourceIdentification());
         msg.getActiveParticipant().add(
                 logger.createActiveParticipant(false, AuditLogger.processID(), null, 
                         appName, getLocalHostname(), RoleIDCode.Application));
@@ -717,7 +717,7 @@ public class XDSAudit {
                 outcomeIndicator,
                 null,
                 eventTypeCode));
-        msg.setAuditSourceIdentification(logger.createAuditSourceIdentification());
+        msg.getAuditSourceIdentification().add(logger.createAuditSourceIdentification());
         msg.getActiveParticipant().add(
                 AuditMessages.createActiveParticipant(srcUserID, altSrcUserID, null, true,
                         srcHostName, machineOrIP(srcHostName), null, RoleIDCode.Source));
@@ -760,7 +760,7 @@ public class XDSAudit {
                 outcomeIndicator,
                 null,
                 eventTypeCode));
-        msg.setAuditSourceIdentification(logger.createAuditSourceIdentification());
+        msg.getAuditSourceIdentification().add(logger.createAuditSourceIdentification());
         msg.getActiveParticipant().add(
                 AuditMessages.createActiveParticipant(srcUserID, altSrcUserID, null, true,
                         srcHostName, machineOrIP(srcHostName), null, RoleIDCode.Source));
@@ -790,7 +790,7 @@ public class XDSAudit {
                 outcomeIndicator,
                 null,
                 eventTypeCode));
-        msg.setAuditSourceIdentification(logger.createAuditSourceIdentification());
+        msg.getAuditSourceIdentification().add(logger.createAuditSourceIdentification());
         String hostName = getLocalHostname();
         msg.getActiveParticipant().add(
                 AuditMessages.createActiveParticipant(srcUserID, altSrcUserID, null, true,
@@ -817,7 +817,7 @@ public class XDSAudit {
                 outcomeIndicator,
                 null,
                 EventTypeCode.ITI_8_PatientIdentityFeed));
-        msg.setAuditSourceIdentification(logger.createAuditSourceIdentification());
+        msg.getAuditSourceIdentification().add(logger.createAuditSourceIdentification());
         String hostName = getLocalHostname();
         msg.getActiveParticipant().add(
                 AuditMessages.createActiveParticipant(srcUserID, altSrcUserID, null, true,
@@ -838,11 +838,11 @@ public class XDSAudit {
     }
 
     public static void sendAuditMessage(Calendar timeStamp, AuditMessage msg) throws IncompatibleConnectionException, GeneralSecurityException, IOException {
-        log.debug("Send audit message! EventId: {}", msg.getEventIdentification().getEventID().getDisplayName());
+        log.debug("Send audit message! EventId: {}", msg.getEventIdentification().getEventID().getOriginalText());
         if (log.isDebugEnabled())
             log.debug("Sent audit message:"+AuditMessages.toXML(msg));
         logger.write(timeStamp, msg);
-        log.debug("Audit message sent! EventId: {}", msg.getEventIdentification().getEventID().getDisplayName());
+        log.debug("Audit message sent! EventId: {}", msg.getEventIdentification().getEventID().getOriginalText());
     }
 
     public static ParticipantObjectIdentification createPatient(String patID) {
